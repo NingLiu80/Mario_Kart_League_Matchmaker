@@ -1,3 +1,7 @@
+# This file is part of the Mario_Kart_Liga_Matchmaker distribution
+# (https://github.com/NingLiu80/Mario_Kart_Liga_Matchmaker).
+# Copyright (c) 2024 Ning Liu.
+#
 #                     GNU GENERAL PUBLIC LICENSE
 #                        Version 3, 29 June 2007
 # 
@@ -620,19 +624,8 @@
 # 
 #  END OF TERMS AND CONDITIONS
 # 
-# How to Apply These Terms to Your New Programs
-# 
-# If you develop a new program, and you want it to be of the greatest
-# possible use to the public, the best way to achieve this is to make it
-# free software which everyone can redistribute and change under these terms.
-# 
-# To do so, attach the following notices to the program.  It is safest
-# to attach them to the start of each source file to most effectively
-# state the exclusion of warranty; and each file should have at least
-# the "copyright" line and a pointer to where the full notice is found.
-# 
-# <one line to give the program's name and a brief idea of what it does.>
-# Copyright (C) <year>  <name of author>
+# CSV File Creator for local Mario Kart Matchlist
+# Copyright (C) 2024 Ning Liu
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -652,7 +645,9 @@
 # If the program does terminal interaction, make it output a short
 # notice like this when it starts in an interactive mode:
 # 
-# <program>  Copyright (C) <year>  <name of author>
+# CSV File Creator for local Mario Kart Matchlist
+# Copyright (C) 2024  Ning Liu
+#
 # This program comes with ABSOLUTELY NO WARRANTY; for details type `show w'.
 # This is free software, and you are welcome to redistribute it
 # under certain conditions; type `show c' for details.
@@ -672,7 +667,6 @@
 # the library.  If this is what you want to do, use the GNU Lesser General
 # Public License instead of this License.  But first, please read
 # <https://www.gnu.org/licenses/why-not-lgpl.html>.
-
 import argparse
 
 def generate_matches(numOfMatches, numOfPlayers):
