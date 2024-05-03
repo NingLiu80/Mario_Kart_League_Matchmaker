@@ -1,5 +1,5 @@
-# This file is part of the Mario_Kart_Liga_Matchmaker distribution
-# (https://github.com/NingLiu80/Mario_Kart_Liga_Matchmaker).
+# This file is part of the Mario_Kart_League_Matchmaker distribution
+# (https://github.com/NingLiu80/Mario_Kart_League_Matchmaker).
 # Copyright (c) 2024 Ning Liu.
 #
 #                     GNU GENERAL PUBLIC LICENSE
