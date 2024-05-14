@@ -668,69 +668,139 @@
 # Public License instead of this License.  But first, please read
 # <https://www.gnu.org/licenses/why-not-lgpl.html>.
 import argparse
+import numpy as np
 
 def generate_matches(numOfMatches, numOfPlayers):
     num_players = numOfPlayers
     listOfMatches = []
-    rowIndex = 0
     # Adjust the number of players as needed and times to play
     players = [f'Player {i}' for i in range(1, numOfPlayers+1)]
     
     #create cross matrix of number of matches to be played
     cross_matrix = [[numOfMatches for x in range(num_players)] for y in range(num_players)]
-
     
     #reset the values to play against itself
     for i in range(0, num_players):
         cross_matrix[i][i] = 0
     
-    #check each row for players to play against
-    for players_in_row in cross_matrix:
-        # row index marks the actual player which row is starting with
-        localMatches = createMatchesFor4PlayersInRow(rowIndex, players_in_row)
-        for match in localMatches:
-            listOfMatches.append(match)
-        cross_matrix = reduceNumberOfTimesToPlay(localMatches, cross_matrix)
-        rowIndex+=1
+    #cross_matrix = np.array(cross_matrix)
     
-    return listOfMatches
-
-def createMatchesFor4PlayersInRow(actPlayerIdx, players_in_row):
     listOfMatches = []
     
-    while(max(players_in_row)>0): 
-        singleMatch = []
+    f = open('log.csv', 'w+')
+    
+    biggestValue = max(map(max, cross_matrix))
+    
+    loopIteration = 0
+    match = []
+    # while there is still some to play
+    while(biggestValue > 0):
+        #print('biggestValue = '+str(biggestValue))
         
-        # Enumerate the list to get indices and values, then sort by values
-        sorted_indices = sorted(enumerate(players_in_row), key=lambda x: x[1], reverse=True)
+        for rowIndex in range(0, num_players):
+            # start row
+            rowList = cross_matrix[rowIndex]
+            boolTraverseInRow, match = preCheckRowForList(rowIndex,match,listOfMatches,cross_matrix)
+            if (boolTraverseInRow):
+                # there is at least another availble player in the row
+                for columnIndex in range(0, num_players):
+                    #check the columns
+                    toPlay = rowList[columnIndex]
+                    if(rowIndex != columnIndex) and (toPlay>0):
+                        if(len(match)<4):
+                            match.append(columnIndex)
+                        else:
+                            listOfMatches.append(createAnewMatch(match))
+                            reduceCrossMatrix(match, cross_matrix)
+                            match.clear()
+                            match.append(rowIndex)
+                            match.append(columnIndex)
+                # end column
+            transform2dListIntoCSV(loopIteration,match,listOfMatches,cross_matrix,f)
+            # end row
+        loopIteration += 1
+        biggestValue = max(map(max, cross_matrix))
 
-        # Take the indices of the first 3 highest values
-        top_3_indices = [index for index, _ in sorted_indices[:3]]
-        
-        singleMatch.append(actPlayerIdx)
-        
-        # check each player if they still need to play
-        for playerIdx in top_3_indices:
-            if (players_in_row[playerIdx]>0):
-                # add to single match         
-                singleMatch.append(playerIdx)
-                #remove the times to play
-                players_in_row[playerIdx]-=1
-                
-        listOfMatches.append(singleMatch)
-                     
+    f.close()
     return listOfMatches
+
+def transform2dListIntoCSV(matchIteration,match,listOfMatches,cross_matrix,f):
+    strMatchNbr = 'Loop ; '+str(matchIteration)+'\n'
+    strMatch = 'collected matches ; '+str(match)+'\n'
+    strListOfMatch = 'listOfMatches ; '+str(listOfMatches)+'\n'
+    strCM = 'cross_matrix ; ' + str(cross_matrix)
+    strCM = strCM.replace('[[','')
+    strCM = strCM.replace('],','\n')
+    strCM = strCM.replace('[',';')
+    strCM = strCM.replace(']]','\n')
+    strWholeIteration = strMatchNbr + strMatch + strListOfMatch + strCM
+    f.write(strWholeIteration)
+
+def preCheckRowForList(rowIndex,match,listOfMatches, cross_matrix):
+    rowList = cross_matrix[rowIndex]
+    boolForTraverseInRow = max(rowList)>0
+    
+    #there are still elements in the row
+    if(boolForTraverseInRow):
+        if(not rowIndex in match):
+            if (len(match) < 3):
+                match.append(rowIndex)
+            else:
+                newMatch = []
+                for e in match:
+                    newMatch.append(e)
+                listOfMatches.append(newMatch)
+                reduceCrossMatrix(newMatch, cross_matrix)
+                match.clear()
+                
+                rowList = cross_matrix[rowIndex]
+                if(max(rowList)>0):
+                    match.append(rowIndex)
+                else:
+                    boolForTraverseInRow = False       
+    return boolForTraverseInRow, match
+
+def createAnewMatch(match):
+    newMatch = []
+    for e in match:
+        newMatch.append(e)
+    return newMatch
+
+def reduceCrossMatrix(match, cross_matrix):
+    if (len(match)>1):
+        rowIndex = match[0]
+        
+    for e in match[1:]:
+        cross_matrix[rowIndex][e]-=1
+        cross_matrix[e][rowIndex]-=1
 
 def reduceNumberOfTimesToPlay(listOfMatches, cross_matrix):
     # check for each match
     for match in listOfMatches:
         # the players if they still have to play and decrement
-        for playerIdx in match:
-            if(cross_matrix[playerIdx][playerIdx]>0):
-                cross_matrix[playerIdx][playerIdx] -= 1
-            if(cross_matrix[playerIdx][playerIdx]>0):
-                cross_matrix[playerIdx][playerIdx] -= 1
+        print('Reduce for Match = '+str(match))
+        nbrPlayers = len(match)
+        if(nbrPlayers > 1):
+            p0 = match[0]
+            p1 = match[1]
+            if(cross_matrix[p0][p1]>0):
+                cross_matrix[p0][p1] -= 1
+            if(cross_matrix[p1][p0]>0):
+                cross_matrix[p1][p0] -= 1
+            if (nbrPlayers > 2):
+                p2 = match[2]
+                if(cross_matrix[p0][p2]>0):
+                    cross_matrix[p0][p2] -= 1
+                if(cross_matrix[p2][p0]>0):
+                    cross_matrix[p2][p0] -= 1
+                if (nbrPlayers == 4):
+                    p3 = match[3]
+                    if(cross_matrix[p0][p3]>0):
+                        cross_matrix[p0][p3] -= 1
+                    if(cross_matrix[p3][p0]>0):
+                        cross_matrix[p3][p0] -= 1
     return cross_matrix
+    
 
 def saveMatchesToCsvFile(matches, fname):
     strOfMatches = ""
